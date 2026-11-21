@@ -1,0 +1,83 @@
+# All dot-directories, at any depth:
+# .dart_tool/, .idea/, .vscode/, .gradle/, .cxx/, .kotlin/, .symlinks/,
+# .pub-cache/, .pub/, .fvm/, .claude/, .swiftpm/, .build/ ...
+.*/
+# Uncomment once CI workflows appear:
+# !.github/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+*.swp
+
+# IDE
+*.iml
+*.ipr
+*.iws
+.history
+
+# Dart / Flutter / Pub
+/build/
+/coverage/
+**/doc/api/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+migrate_working_dir/
+*.log
+*.class
+*.pyc
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android
+**/android/local.properties
+**/android/key.properties
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle/wrapper/gradle-wrapper.jar
+**/android/**/GeneratedPluginRegistrant.java
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+*.jks
+*.keystore
+
+# iOS / macOS
+**/ios/Pods/
+**/macos/Pods/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral/
+**/DerivedData/
+**/xcuserdata/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+*.xcuserstate
+
+# Linux / Windows desktop
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+
+# Secrets
+*.env
