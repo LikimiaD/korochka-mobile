@@ -2,19 +2,29 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:korochka/data/seed_accounts.dart';
+import 'package:korochka/data/seed_orders.dart';
 import 'package:korochka/data/seed_products.dart';
 import 'package:korochka/data/validation.dart';
 import 'package:korochka/models/account.dart';
 import 'package:korochka/models/cart_item.dart';
+import 'package:korochka/models/order.dart';
 import 'package:korochka/models/product.dart';
 
 const int maxQuantityPerItem = 20;
 
 class BakeryStore extends ChangeNotifier {
+  BakeryStore({DateTime? now}) : _fixedNow = now {
+    _orders.addAll(seedOrders(this.now));
+  }
+
+  final DateTime? _fixedNow;
   final List<Account> _accounts = seedAccounts();
   final List<Product> _products = seedProducts();
   final List<CartItem> _cart = [];
+  final List<Order> _orders = [];
   Account? _currentAccount;
+
+  DateTime get now => _fixedNow ?? DateTime.now();
 
   Account? get currentAccount => _currentAccount;
 
@@ -137,6 +147,82 @@ class BakeryStore extends ChangeNotifier {
   void removeCartItem(int productId) {
     _cart.removeWhere((item) => item.product.id == productId);
     notifyListeners();
+  }
+
+  List<Order> get orders => _orders.reversed.toList();
+
+  List<Order> get myOrders {
+    final account = _currentAccount;
+    if (account == null) {
+      return [];
+    }
+    return orders
+        .where((order) => order.customerPhone == account.phone)
+        .toList();
+  }
+
+  Order? findOrder(int number) {
+    return _orders.where((order) => order.number == number).firstOrNull;
+  }
+
+  Order? placeOrder({
+    required DateTime pickupTime,
+    required PaymentMethod paymentMethod,
+    String comment = '',
+  }) {
+    final account = _currentAccount;
+    if (account == null || _cart.isEmpty || cartHasUnavailable) {
+      return null;
+    }
+    final items = <OrderItem>[];
+    for (final cartItem in _cart) {
+      items.add(
+        OrderItem(
+          productId: cartItem.product.id,
+          productName: cartItem.product.name,
+          price: cartItem.product.price,
+          quantity: cartItem.quantity,
+        ),
+      );
+    }
+    final order = Order(
+      number: _orders.last.number + 1,
+      items: items,
+      customerName: account.name,
+      customerPhone: account.phone,
+      pickupTime: pickupTime,
+      paymentMethod: paymentMethod,
+      createdAt: now,
+      comment: comment.trim(),
+    );
+    _orders.add(order);
+    _cart.clear();
+    notifyListeners();
+    return order;
+  }
+
+  bool advanceOrderStatus(int number) {
+    final order = findOrder(number);
+    if (order == null) {
+      return false;
+    }
+    final nextStatus = order.status.next;
+    if (nextStatus == null) {
+      return false;
+    }
+    order.status = nextStatus;
+    notifyListeners();
+    return true;
+  }
+
+  bool cancelOrder(int number, {required bool byStaff}) {
+    final order = findOrder(number);
+    if (order == null || !order.status.canBeCancelled(byStaff: byStaff)) {
+      return false;
+    }
+    order.status = OrderStatus.cancelled;
+    notifyListeners();
+    return true;
   }
 
   Account? _findAccount(String phone) {
